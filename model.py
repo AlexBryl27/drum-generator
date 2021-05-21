@@ -3,7 +3,7 @@ from tensorflow.keras.layers import RepeatVector, Permute
 from tensorflow.keras.layers import Multiply, Lambda
 import tensorflow.keras.backend as K 
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import RMSprop, Adam
 
 
 class NotesRNN:
@@ -49,7 +49,7 @@ class NotesRNN:
             c = Multiply()([x, c])
             c = Lambda(lambda xin: K.sum(xin, axis=1), output_shape=(self.n_units,))(c)
         else:
-            c = _rnn_layer(x)
+            c = LSTM(self.n_units, return_sequences=False)(x)
 
         notes_out = Dense(self.n_notes, activation='softmax')(c)
         
