@@ -3,7 +3,9 @@ from tensorflow.keras.layers import RepeatVector, Permute, Concatenate
 from tensorflow.keras.layers import Multiply, Lambda
 import tensorflow.keras.backend as K 
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import RMSprop, Adam
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.utils import to_categorical
+import numpy as np
 
 
 class NotesRNN:
@@ -59,7 +61,7 @@ class NotesRNN:
             c = Multiply()([x, c])
             c = Lambda(lambda xin: K.sum(xin, axis=1), output_shape=(self.n_units,))(c)
         else:
-            c = _rnn_layer(x, False)
+            c = self._rnn_layer(x, False)
 
         notes_out = Dense(self.n_notes, activation='softmax')(c)
         if self.use_durations:
@@ -72,3 +74,26 @@ class NotesRNN:
             if self.use_attention:
                 self.att_model = Model(notes_in, alpha)
         self.model.compile(loss='categorical_crossentropy', optimizer=RMSprop(lr=0.001))
+
+
+    def prepare_sequences(self, notes, durations, length, step):
+        note_sequences = []
+        note_targets = []
+        if self.use_durations:
+            dur_sequences = []
+            dur_targets = []
+        for i in range(0, len(notes) - length, step):
+            note_sequences.append(notes[i: i + length])
+            note_targets.append(notes[i + length])
+            if self.use_durations:
+                dur_sequences.append(durations[i: i + length])
+                dur_targets.append(durations[i + length])
+        note_targets = to_categorical(note_targets, self.n_notes)
+        if self.use_durations:    
+            dur_targets = to_categorical(dur_targets, self.n_durations)
+            sequences = [np.array(note_sequences), np.array(dur_sequences)]
+            targets = [note_targets, dur_targets]
+        else:
+            sequences = np.array(note_sequences)
+            targets = np.array(note_targets)
+        return sequences, targets
