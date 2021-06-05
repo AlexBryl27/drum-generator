@@ -1,4 +1,6 @@
 import guitarpro
+import json
+
 
 def clear_drums(note):
     if note.value in [40, 38, 33, 34]:
@@ -33,16 +35,19 @@ def drop_rests_from_drum_track(notes):
     return fixed_notes, durations
 
 
-def get_notes_and_durations(tab, track_number=None, hard_cleaning=False):
+def get_notes_and_durations(tab, track_name=None, hard_cleaning=False):
     
     # if None we use drum track
-    if not track_number:
+    if not track_name:
         for track in tab.tracks:
             if track.isPercussionTrack:
                 break
-    # do with track_name (add in original files)
     else:
-        track = tab.tracks[track_number]
+        with open('string_map.json', 'r') as f:
+            string_map = json.load(f)
+        for track in tab.tracks:
+            if track.name == track_name:
+                break
     
     notes = ['del']
     durations = [1]
@@ -63,6 +68,8 @@ def get_notes_and_durations(tab, track_number=None, hard_cleaning=False):
                     if note.value == prev:
                         prev = note.value
                         continue
+                else:
+                    note.value = string_map[str(note.string)][note.value]
                 poly_note += str(note.value) + '.'
             durations.append(1 / beat.duration.value)
             notes.append(poly_note)

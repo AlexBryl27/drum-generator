@@ -10,26 +10,28 @@ def save_notes_and_durations(generated, filepath):
         if len(gen_notes) > 1:
             cur_chord = []
             for cur_note in gen_notes:
-                new_note = note.Note(int(cur_note))
-                new_note.duration = duration.Duration(gen_durations)
-                new_note.soredInstrument = instrument.Percussion()
+                try:
+                    new_note = note.Note(int(cur_note))
+                except:
+                    new_note = note.Note(cur_note)
+                new_note.duration = duration.Duration(gen_durations * 4)
                 cur_chord.append(new_note)
             midi_stream.append(chord.Chord(cur_chord))
         elif gen_notes != []:
             if gen_notes[0] == 'del':
                 new_note = note.Rest()
                 new_note.duration = duration.Duration(type=1)
-                new_note.storedInstrument = instrument.Percussion()
                 midi_stream.append(new_note)
             else:
-                new_note = note.Note(int(gen_notes[0]))
-                new_note.duration = duration.Duration(gen_durations)
-                new_note.soredInstrument = instrument.Percussion()
+                try:
+                    new_note = note.Note(int(gen_notes[0]))
+                except:
+                    new_note = note.Note(gen_notes[0])
+                new_note.duration = duration.Duration(gen_durations * 4)
                 midi_stream.append(new_note)
         else:
             new_note = note.Rest()
-            new_note.duration = duration.Duration(gen_durations)
-            new_note.storedInstrument = instrument.Percussion()
+            new_note.duration = duration.Duration(gen_durations * 4)
             midi_stream.append(new_note)
             
     midi_stream = midi_stream.chordify()
@@ -44,9 +46,11 @@ def save_notes(generated, filepath):
         if len(gen_notes) > 1:
             cur_chord = []
             for cur_note in gen_notes:
-                new_note = note.Note(int(cur_note))
+                try:
+                    new_note = note.Note(int(cur_note))
+                except:
+                    new_note = note.Note(cur_note)
                 new_note.duration = duration.Duration(type='16th')
-                new_note.soredInstrument = instrument.Percussion()
                 cur_chord.append(new_note)
             midi_stream.append(chord.Chord(cur_chord))
         elif gen_notes != []:
@@ -56,14 +60,15 @@ def save_notes(generated, filepath):
                 new_note.storedInstrument = instrument.Percussion()
                 midi_stream.append(new_note)
             else:
-                new_note = note.Note(int(gen_notes[0]))
+                try:
+                    new_note = note.Note(int(gen_notes[0]))
+                except:
+                    new_note = note.Note(gen_notes[0])
                 new_note.duration = duration.Duration(type='16th')
-                new_note.soredInstrument = instrument.Percussion()
                 midi_stream.append(new_note)
         else:
             new_note = note.Rest()
             new_note.duration = duration.Duration(type='16th')
-            new_note.storedInstrument = instrument.Percussion()
             midi_stream.append(new_note)
             
     midi_stream = midi_stream.chordify()
