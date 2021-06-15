@@ -21,22 +21,23 @@ class ModelBuilder(Model):
     def compute_loss(self, x, y):
         mu, log_var, z = self.encoder(x)
         generated = self.decoder(z)
-        predictions = generated[0]
-        entropy = self.cce(y, predictions)
+        entropy_notes = self.cce(y[0], generated[0]) + 1e-6
+        entropy_durations = self.cce(y[1], generated[1])
         kl_loss = -0.5 * tf.reduce_sum(1 + log_var - tf.square(mu) - tf.exp(log_var), axis = 1) * self.loss_factor
-        return entropy, kl_loss
+        return entropy_notes, entropy_durations, kl_loss
 
     @tf.function
     def train_step(self, inputs):
         x = inputs[0]
-        y = inputs[1][0]
+        y = inputs[1]
         with tf.GradientTape() as tape:
-            entropy, kl_loss = self.compute_loss(x, y)
-            loss = entropy + kl_loss
+            entropy_notes, entropy_durations, kl_loss = self.compute_loss(x, y)
+            loss = entropy_notes + entropy_durations + kl_loss
         gradients = tape.gradient(loss, self.trainable_weights)
         self.optimizer.apply_gradients(zip(gradients, self.trainable_weights))
         return {
-            "cce": entropy,
+            "cce_notes": entropy_notes,
+            "cce_durations": entropy_durations,
             "kl": kl_loss,
             "loss": loss
         }
