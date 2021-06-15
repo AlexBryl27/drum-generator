@@ -8,7 +8,7 @@ from tensorflow.keras.utils import to_categorical
 import numpy as np
 
 
-class NotesRNN:
+class MusicRNN:
 
     def __init__(
         self,

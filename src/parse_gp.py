@@ -63,8 +63,12 @@ def get_notes_and_durations(tab, track_name=None, hard_cleaning=False):
             poly_note = ''
             prev = ''
             for note in beat.notes:
-                if hard_cleaning: # only for drums
-                    note.value = clear_drums(note)
+                # only for drums
+                if not track_name:
+                    if hard_cleaning:
+                        note.value = str(clear_drums(note))
+                    else:
+                        note.value = str(note.value)
                     if note.value == prev:
                         prev = note.value
                         continue
