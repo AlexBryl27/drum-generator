@@ -21,9 +21,9 @@ class ModelBuilder(Model):
     def compute_loss(self, x, y):
         mu, log_var, z = self.encoder(x)
         generated = self.decoder(z)
-        entropy_notes = self.cce(y[0], generated[0]) + 1e-6
-        entropy_durations = self.cce(y[1], generated[1])
-        kl_loss = -0.5 * tf.reduce_sum(1 + log_var - tf.square(mu) - tf.exp(log_var), axis = 1) * self.loss_factor
+        entropy_notes = self.loss_factor * self.cce(y[0], generated[0]) + 1e-6
+        entropy_durations = self.loss_factor * self.cce(y[1], generated[1]) +1e-6
+        kl_loss = -0.5 * tf.reduce_sum(1 + log_var - tf.square(mu) - tf.exp(log_var), axis = 1)
         return entropy_notes, entropy_durations, kl_loss
 
     @tf.function
