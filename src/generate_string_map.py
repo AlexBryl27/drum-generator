@@ -14,5 +14,8 @@ string_map = {
     1: [inv_octave[i] + '5' for i in range(7, 7-12, -1)] + [inv_octave[i] + '6' for i in range(7, 7-12, -1)] + ['E7']
 }
 
+# this fix is due to a strange midi stream recording
+string_map[7][0] = 'B1'
+
 with open('string_map.json', 'w') as f:
     json.dump(string_map, f)

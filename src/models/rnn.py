@@ -19,7 +19,6 @@ class MusicRNN:
         n_layers=2,
         use_dropout=True,
         use_attention=True,
-        use_durations=False
         ):
         self.n_notes = n_notes
         self.n_durations = n_durations
@@ -28,7 +27,6 @@ class MusicRNN:
         self.n_layers = n_layers
         self.use_dropout = use_dropout
         self.use_attention = use_attention
-        self.use_durations = use_durations
         self._build()
 
     def _rnn_layer(self, x, return_seq=True):
@@ -41,10 +39,9 @@ class MusicRNN:
         
         notes_in = Input(shape=(None,))
         x = Embedding(self.n_notes, self.emb_size)(notes_in)
-        if self.use_durations:
-            durations_in = Input(shape=(None,))
-            x_dur = Embedding(self.n_durations, self.emb_size)(durations_in)
-            x = Concatenate()([x, x_dur])
+        durations_in = Input(shape=(None,))
+        x_dur = Embedding(self.n_durations, self.emb_size)(durations_in)
+        x = Concatenate()([x, x_dur])
         
         for _ in range(self.n_layers - 1):
             x = self._rnn_layer(x)
@@ -64,36 +61,26 @@ class MusicRNN:
             c = self._rnn_layer(x, False)
 
         notes_out = Dense(self.n_notes, activation='softmax')(c)
-        if self.use_durations:
-            durations_out = Dense(self.n_durations, activation='softmax')(c)
-            self.model = Model([notes_in, durations_in], [notes_out, durations_out])
-            if self.use_attention:
-                self.att_model = Model([notes_in, durations_in], alpha)
-        else:
-            self.model = Model(notes_in, notes_out)
-            if self.use_attention:
-                self.att_model = Model(notes_in, alpha)
+        durations_out = Dense(self.n_durations, activation='softmax')(c)
+        self.model = Model([notes_in, durations_in], [notes_out, durations_out])
+        if self.use_attention:
+            self.att_model = Model([notes_in, durations_in], alpha)
+        
         self.model.compile(loss='categorical_crossentropy', optimizer=RMSprop(lr=0.001))
 
 
     def prepare_sequences(self, notes, durations, length, step):
         note_sequences = []
         note_targets = []
-        if self.use_durations:
-            dur_sequences = []
-            dur_targets = []
+        dur_sequences = []
+        dur_targets = []
         for i in range(0, len(notes) - length, step):
             note_sequences.append(notes[i: i + length])
             note_targets.append(notes[i + length])
-            if self.use_durations:
-                dur_sequences.append(durations[i: i + length])
-                dur_targets.append(durations[i + length])
+            dur_sequences.append(durations[i: i + length])
+            dur_targets.append(durations[i + length])
         note_targets = to_categorical(note_targets, self.n_notes)
-        if self.use_durations:    
-            dur_targets = to_categorical(dur_targets, self.n_durations)
-            sequences = [np.array(note_sequences), np.array(dur_sequences)]
-            targets = [note_targets, dur_targets]
-        else:
-            sequences = np.array(note_sequences)
-            targets = np.array(note_targets)
+        dur_targets = to_categorical(dur_targets, self.n_durations)
+        sequences = [np.array(note_sequences), np.array(dur_sequences)]
+        targets = [note_targets, dur_targets]
         return sequences, targets
