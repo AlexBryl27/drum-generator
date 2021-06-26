@@ -48,8 +48,6 @@ def note_handler(beat, string_map, track_type=None, hard_cleaning=False):
                 prev = note.value
                 continue
         else:
-            if note.value > 24:
-                note.value -= 12
             note.value = string_map[str(note.string)][note.value]
         poly_note += str(note.value) + '.'
         note_type = note.type.name
