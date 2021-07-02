@@ -1,11 +1,11 @@
-# music generator
+# Note generator
 
-Generate midi track with different models: 
+Генерация последжоательностей нот и длительностей на основе обучения моделей: 
 * RNN with attention
 * VAE
 * Markov chain
-* GAN (not implemented yet)
+* GAN
+* Transformer (еще не реализовано)
 
-Guitarpro files are used as input data, from which the track is parsed by name. Originally planned to generate only drums, but the project has expanded a lot. 
-
-The output is generated to a midi file 
+В качестве входных данных используются файлы гитарпро с моими треками. Все дорожки именованы, что позволяет использовать ноты, например, гитары или ударных.
+Файлов не много, поэтому ожидать хорошей генерации ни от одной модели не стоит, цель этой работы - "пощупать" модели руками. Кроме того, стоит учитывать стиль композиций - progressive metal - из-за чего моделям довольно сложно уловить ритмическую составляющую.

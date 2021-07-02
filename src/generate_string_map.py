@@ -1,18 +1,16 @@
 import json
 
-def next_note(note):
-    octave = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    i = octave.index(note)
-    if i == 11:
-        i = -1
-    while True:
-        yield octave[i + 1]
 
 def generate_sequence(note, octave_number):
     sequence = []
+    octave = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    i = octave.index(note)
     for _ in range(31):
         sequence.append(note + str(octave_number))
-        note = next(next_note(note))
+        if i == 11:
+            i = -1
+        note = octave[i + 1]
+        i += 1
         if note == 'C':
             octave_number += 1
     return sequence
